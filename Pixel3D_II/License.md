@@ -3,14 +3,17 @@ auther:satori32
 date:2019/06/7
 ---
 
-#what is this?
+# what is this?
 this is pixel graphic softwere.
+
 ドット打つソフトだよ。
 
-#advance
+# advance
 this is output a 3d softwere format.
+
 なぜかメタセコイア形式が吐けるよ！
 
-#license
+# license
 no more for you.
+
 今のところ考えていません。

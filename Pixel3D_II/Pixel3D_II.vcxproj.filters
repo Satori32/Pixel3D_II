@@ -35,5 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Output001.mqo" />
+    <None Include="License.md" />
   </ItemGroup>
 </Project>

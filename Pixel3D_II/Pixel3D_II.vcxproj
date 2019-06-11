@@ -148,12 +148,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pixel3DProc.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="StringMultiByteAndWideChar.h" />
     <ClInclude Include="Surface256.h" />
     <ClInclude Include="WindowClass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="License.md" />
-    <None Include="Output001.mqo" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

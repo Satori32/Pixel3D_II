@@ -32,9 +32,14 @@
     <ClInclude Include="Surface256.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="StringMultiByteAndWideChar.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Output001.mqo" />
     <None Include="License.md" />
   </ItemGroup>
 </Project>

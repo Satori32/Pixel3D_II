@@ -13,6 +13,9 @@ this is output a 3d softwere format.
 
 なぜかメタセコイア形式が吐けるよ！
 
+# output
+*.bmp & *.mqo
+
 # license
 no more for you.
 

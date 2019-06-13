@@ -31,7 +31,10 @@ public:
 	}
 
 	DataType& IndexData(const Cood& X, const Cood& Y) {
-		return Data[(Width_ * Y) + X];
+
+		std::intmax_t H = std::max<int>(Height_ - 1, 0);
+
+		return Data[(Width_ * (H-Y)) + X];
 	}
 	ColorType& IndexColor(const SizeType& In) {
 		return Palette[In];

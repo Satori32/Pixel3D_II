@@ -33,6 +33,20 @@ bool Window::Create(HINSTANCE hInstance,const TCHAR class_name[],const TCHAR app
 		return false;
 	}
 	//ウィンドウ生成
+	/** /
+	HWND ret = ::CreateWindowEx(
+		WS_EX_COMPOSITED,
+		class_name,
+		app_name,
+		WS_OVERLAPPEDWINDOW,    //ウィンドウスタイル。とりあえずデフォルトな感じで
+		CW_USEDEFAULT, CW_USEDEFAULT,   //初期位置。適当にやってくれる。
+		width, height,      //ウィンドウサイズ
+		nullptr,    //親ウィンドウのハンドル。特にないんで今回はNULL
+		nullptr,    //メニューハンドル。特にないので今回はNULL
+		hInstance,
+		this    //トリックの肝。CreateParameterに設定
+	);
+	/**/
 	HWND ret = ::CreateWindow(
 		class_name,
 		app_name,
@@ -44,6 +58,7 @@ bool Window::Create(HINSTANCE hInstance,const TCHAR class_name[],const TCHAR app
 		hInstance,
 		this    //トリックの肝。CreateParameterに設定
 	);
+	/**/
 	//ウィンドウ生成に失敗？
 	if (ret == nullptr) {
 		return false;

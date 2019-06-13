@@ -16,6 +16,9 @@ this is output a 3d softwere format.
 # output
 *.bmp & *.mqo
 
+# progress
+now alpha.
+
 # license
 no more for you.
 

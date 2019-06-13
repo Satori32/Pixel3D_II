@@ -142,25 +142,47 @@ protected:
 				 }
 				case static_cast<INT>(ControlID::Button_LoadS) :
 				{
-					MessageBox(hWnd, _T("ごめんなさい。"), _T("未実装です。"), 0);
-					//if (Box.size() == 1) { break; }
-					//int P = GetScrollPos(Scroll, SB_CTL);
-					//Box.erase(Box.begin() + P);
-					////SetScrollRange(Scroll, SB_CTL, 0, Box.size(), TRUE);	
-					//if (Box.size() <= 1) { EnableWindow(Scroll, FALSE); }	
-					//Sel = &Box[GetScrollPos(Scroll, SB_CTL)];
+
+					const int L = (1 << 12) + 1;
+					TCHAR Str[L] = { 0, };;
+					OPENFILENAME OFN{ 0, };
+
+					OFN.lStructSize = sizeof(OPENFILENAME);
+					OFN.hwndOwner = hWnd;
+					OFN.lpstrFilter = (TCHAR*)_T("8bit_Bitmap (*.bmp)\0*.bmp\0\0");
+					OFN.lpstrFile = Str;
+					OFN.nMaxFile = L;
+					OFN.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
+
+					if (GetOpenFileName(&OFN) != FALSE) {
+						auto [b, Su] = ReadBitmap256(WideCharToMultiByte(Str));
+
+						if (b) {
+
+							INT P = GetScrollPos(Scroll, SB_CTL);
+
+							Box.insert(Box.begin()+P,Su);
+							EnableWindow(Scroll,TRUE);
+							SetScrollRange(Scroll, SB_CTL, 0, Box.size(), FALSE);
+							PenIndex = 1;
+							Sel = &Box[P];
+							MessageBox(hWnd, _T("ロードしました。（BITMAP)"), _T("ロード！！"), 0);
+							InvalidateRect(hWnd, nullptr, TRUE);
+						}
+					}
+					//MessageBox(hWnd, _T("ごめんなさい。"), _T("未実装です。"), 0);
 					break;
 				}
 				case static_cast<INT>(ControlID::Button_SaveS) :
 				 {
 
-					const int L = 10240;
+					const int L = (1<<12)+1;
 					TCHAR Str[L] = {0,};;					
 					OPENFILENAME OFN{ 0, };
 
 					OFN.lStructSize = sizeof(OPENFILENAME);
 					OFN.hwndOwner = hWnd;
-					OFN.lpstrFilter =(TCHAR*) _T("8bit Bitmap(*.bmp)\0*.bmp\0Metasequoia(2.x) (*.mqo)\0*.mqo\0\0");
+					OFN.lpstrFilter =(TCHAR*) _T("8bit_Bitmap (*.bmp)\0*.bmp\0Metasequoia(2.x) (*.mqo)\0*.mqo\0\0");
 					OFN.lpstrFile = Str;
 					OFN.nMaxFile = L;
 					OFN.Flags= OFN_OVERWRITEPROMPT|OFN_PATHMUSTEXIST;
@@ -169,15 +191,14 @@ protected:
 						std::string S = WideCharToMultiByte(Str);
 						if (OFN.nFilterIndex == 1) {
 							for (std::size_t i = 0; i < Box.size();i++) {
-								//S += std::to_string(i)+".bmp";
-								
+
 								SaveBitmap256(Box[i], S+(Box.size()>1?'_'+std::to_string(i):"")+".bmp");
 							}
 							MessageBox(hWnd, _T("セーブしました。(BMP)"), _T("セーブ！"), 0);
 						}
 						if (OFN.nFilterIndex == 2) {
-							S += ".mqo";
-							SaveMQO(Box, S.c_str());	
+							
+							SaveMQO(Box, S+".mqo");	
 							MessageBox(hWnd, _T("セーブしました。(MQO)"), _T("セーブ！"), 0);
 						}
 					}
@@ -207,7 +228,6 @@ protected:
 					  if (ChooseColor(&CC) != false) {
 						  Sel->GetPallete().push_back(CC.rgbResult);
 						  PenIndex = Sel->PaletteSize() - 1;
-						  //MessageBox(hWnd, _T("ごめんなさい。"), _T("未実装です。"), 0);
 					  }
 					  break;
 				  }
@@ -278,7 +298,7 @@ protected:
 			PAINTSTRUCT ps = { 0, };
 			HDC hDC = BeginPaint(hWnd, &ps);
 
-
+			
 			HBRUSH B1 = CreateSolidBrush(Sel->IndexColor(PenIndex));
 			HBRUSH Old1 = SelectBrush(hDC, B1);
 			Rectangle(hDC, 0, SH + BH, W, SH + BH + CBH);//Sel Color
@@ -289,8 +309,11 @@ protected:
 			if (Sel != nullptr) {
 				for (std::size_t i = 0; i < Sel->PaletteSize(); i++) {
 					HBRUSH B = CreateSolidBrush(Sel->IndexColor(i));
+					HPEN Pen = CreatePen(PS_SOLID, 1, Sel->IndexColor(i));
 					HBRUSH Old = SelectBrush(hDC, B);
-					Rectangle(hDC, (W / Sel->PaletteSize()) * i, SH + BH + CBH, static_cast<int>(W / static_cast<double>(Sel->PaletteSize()) * (i + 1)), SH + BH + CH + CBH);
+					HPEN Op = SelectPen(hDC, Pen);
+					Rectangle(hDC, (W / static_cast<double>(Sel->PaletteSize())) * i, SH + BH + CBH, static_cast<int>(W / static_cast<double>(Sel->PaletteSize()) * (i + 1)), SH + BH + CH + CBH);
+					SelectPen(hDC, Op);
 					SelectBrush(hDC, Old);
 					DeleteBrush(B);
 				}
@@ -301,14 +324,16 @@ protected:
 			HBITMAP hBM = CreateCompatibleBitmap(hDC, W, H);
 
 			HBITMAP OBM = SelectBitmap(mDC, hBM);
-
+			
 			for (int j = 0; j < Sel->Height(); j++) {
 				for (int i = 0; i < Sel->Width(); i++) {
 					if (Sel->IndexData(i, j) != 0 && Sel->IndexData(i, j) < Sel->PaletteSize()) {
+					
 						SetPixel(mDC, i, /*SH + BH + CH + CBH + BH +*/ j, Sel->IndexColor(Sel->IndexData(i, j)));
 					}
 				}
 			}
+
 			BitBlt(hDC, 0, SH + BH + CH + CBH + BH, W, H, mDC, 0, 0, SRCCOPY);
 
 			SelectBitmap(mDC, OBM);
@@ -332,11 +357,11 @@ protected:
 
 		case WM_KEYUP:
 			if (wp & VK_SPACE) {
-				RedrawWindow(hWnd, nullptr, nullptr, RDW_INVALIDATE | RDW_ALLCHILDREN);
+				RedrawWindow(hWnd, nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW|RDW_ALLCHILDREN);
 			}
 			break;
 		case WM_LBUTTONUP:
-			RedrawWindow(hWnd, nullptr, nullptr, RDW_INVALIDATE);
+			RedrawWindow(hWnd, nullptr, nullptr, RDW_INVALIDATE |RDW_UPDATENOW| RDW_ALLCHILDREN);
 
 			break;
 		case WM_LBUTTONDOWN:
@@ -403,6 +428,53 @@ protected:
 
 	}
 
+protected:
+	std::tuple<bool, Surface> ReadBitmap256(const std::string& Name) {
+		BITMAPFILEHEADER BMF = { 0, };
+		BITMAPINFOHEADER BMH = { 0, };
+		WORD WO = 0;
+		DWORD DWO = 0;
+
+		std::ifstream ifs(Name, std::ios::binary);
+		if (!ifs.is_open()) { return { false ,{} }; }
+
+		ifs.read((char*)& BMF.bfType, sizeof(WORD));//sig
+		if (BMF.bfType != 'B' + ('M' << 8)) { return { false,{} }; }
+		ifs.read((char*)& DWO, sizeof(DWORD));//fsize.
+		ifs.read((char*)& WO, sizeof(WORD));	//resurved	
+		ifs.read((char*)& WO, sizeof(WORD));// resurved
+		ifs.read((char*)& DWO, sizeof(DWORD));//offbits.	
+
+		ifs.read((char*)& BMH, sizeof(BITMAPINFOHEADER));//try read once.
+		if (BMH.biSize != 40) { return{ false,{} }; }
+		if (BMH.biBitCount != 8) { return{ false,{} }; }
+		if (BMH.biClrUsed == 0) { BMH.biClrUsed = 255; }
+
+		Surface S(BMH.biWidth, BMH.biHeight);
+		S.GetPallete().clear();
+		RGBQUAD RQ = { 0, };
+
+		for (DWORD i = 0; i < BMH.biClrUsed; i++) {
+			ifs.read((char*)&RQ, sizeof(RGBQUAD));//read Pallete.
+			S.GetPallete().push_back(RGB(RQ.rgbRed, RQ.rgbGreen, RQ.rgbBlue));
+		}
+		ifs.read((char*)&S.GetData()[0], S.Width()*S.Height());
+
+		Surface R(256, 256);
+
+		R.GetPallete() = S.GetPallete();
+		for (std::size_t i = 0; R.PaletteSize() > 256; i++) { R.GetPallete().pop_back(); }
+
+		for (std::size_t y = 0; y < R.Height(); y++) {
+			for (std::size_t x = 0; x < R.Width(); x++) {
+				R.IndexData(x, y) = S.IndexData(x, y);
+			}
+		}
+		return { true,R };
+
+		
+	}
+protected:
 	bool SaveBitmap256(Pixel3DProc::Surface& S, const std::string& Name) {
 		BITMAPFILEHEADER BMH = { 0, };
 		BITMAPINFOHEADER BMI = { 0, };

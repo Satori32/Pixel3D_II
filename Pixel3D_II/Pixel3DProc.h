@@ -257,7 +257,7 @@ protected:
 					for (auto& o : DD) {
 						//Vertex.push_back({ { (std::get<0>(o) + (Line * (x + 1))),(std::get<1>(o) + (Line * (Box[z].Height() - (y + 1)))),(std::get<2>(o) + (Line * (z + 1))) } ,Box[z].IndexData(x,y)});
 						//Vertex.push_back({ { (std::get<0>(o) + (Line * x)),(std::get<1>(o) + (Line * (Box[z].Height() - y))),(std::get<2>(o) + (Line * z)) } ,Box[z].IndexColor(Box[z].IndexData(x,y)) });
-						Vertex.push_back({ { (std::get<0>(o) + (Line * x)),(std::get<1>(o) + (Line * y)),(std::get<2>(o) + (Line * z)) } ,Box[z].IndexColor(Box[z].IndexData(x,y)) });
+						Vertex.push_back({ { (std::get<0>(o) + (Line * x)),(std::get<1>(o) + (Line * (Box[z].Height()-y-1))),(std::get<2>(o) + (Line * z)) } ,Box[z].IndexColor(Box[z].IndexData(x,y)) });
 					}
 				}
 			}

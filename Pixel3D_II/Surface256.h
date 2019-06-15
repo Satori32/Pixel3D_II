@@ -2,6 +2,10 @@
 //#include <deque>
 #include <vector>
 #include <cstdint>
+
+//データは上から下へ流れる。BMPの作法の逆。
+//this class not use BMP data rule.now.
+
 template<class Color>
 class Surface256 {
 public:
@@ -32,9 +36,7 @@ public:
 
 	DataType& IndexData(const Cood& X, const Cood& Y) {
 
-		std::intmax_t H = std::max<int>(Height_ - 1, 0);
-
-		return Data[(Width_ * (H-Y)) + X];
+		return Data[(Width_ * Y) + X];
 	}
 	ColorType& IndexColor(const SizeType& In) {
 		return Palette[In];

@@ -173,7 +173,7 @@ protected:
 		}
 		delete[] p;
 		Surface R(256, 256);
-
+		R.GetPallete().clear();
 		for (std::size_t i = 0; i < std::min<size_t>(S.PaletteSize(), 256); i++) { 
 			R.GetPallete().push_back(S.IndexColor(i));
 		}
@@ -424,9 +424,12 @@ protected:
 			RQ[i].rgbGreen = (Sel->IndexColor(i) & 0xff00)>>8;
 			RQ[i].rgbBlue = (Sel->IndexColor(i) & 0xff0000)>>16;
 		}
-		
-		SetDIBitsToDevice(hDC, 0, SH + BH + CH + CBH + BH, Sel->Width(), Sel->Height(), 0, 0, 0,Sel->Height(), &Sel->GetData()[0], BMI, DIB_RGB_COLORS);
-
+		/**/
+		for (std::size_t i = 0; i < Sel->Height(); i++) {
+			SetDIBitsToDevice(hDC, 0, SH + BH + CH + CBH + BH+i, Sel->Width(), 1, 0, 0, 0, 1, &Sel->IndexData(0,i), BMI, DIB_RGB_COLORS);	
+		}
+		/**/
+		//SetDIBitsToDevice(hDC, 0, SH + BH + CH + CBH + BH, Sel->Width(), Sel->Height(), 0, 0, 0, Sel->Height(), &Sel->GetData()[0], BMI, DIB_RGB_COLORS);
 		delete[] p;
 		/** /
 		HDC mDC = CreateCompatibleDC(hDC);

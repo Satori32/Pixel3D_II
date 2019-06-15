@@ -19,6 +19,9 @@ this is output a 3d softwere format.
 # progress
 now alpha.
 
+# comment
+ビットマップの作法がよくわからないよ！！
+
 # license
 no more for you.
 
